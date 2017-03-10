@@ -1,0 +1,6 @@
+*.exe
+bin/*
+config.json
+download/*
+.secret
+encode/

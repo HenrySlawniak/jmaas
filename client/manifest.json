@@ -1,0 +1,11 @@
+{
+  "name": "The Josh Mills Anger Advisory System",
+  "start_url": "/",
+  "background_color": "#757575",
+  "theme_color": "#FFEB3B",
+  "icons": [{
+    "src": "/static/images/icon-256.png",
+    "sizes": "256x256",
+    "type": "image/png"
+  }]
+}

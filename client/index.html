@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#FFEB3B" />
+  <title>The Josh Mills Anger Advisory System</title>
+  <link defer rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <div class="content">
+    <div class="container">
+      <div class="intro">
+        <h3>Welcome to</h3>
+        <h1>The Josh Mills Anger Advisory System</h1>
+      </div>
+      <div class="chart-container">
+      </div>
+    </div>
+  </div>
+  <script defer>
+    document.addEventListener("DOMContentLoaded", _ => {
+      loadChartItems();
+    });
+
+    function loadChartItems() {
+      const xhr = new XMLHttpRequest();
+      const url = `/api/levels`;
+      xhr.open("GET", url, true);
+      xhr.onload = _ => {
+        const resp = JSON.parse(xhr.responseText);
+        for (var key in resp) {
+          if (resp.hasOwnProperty(key)) {
+            let e = resp[key];
+            let item = document.createElement("div");
+            item.style.background = e["background"];
+            item.classList.add("chart-item");
+
+            let title = document.createElement("h1");
+            title.classList.add("item-title");
+            title.innerHTML = e["title"];
+            item.appendChild(title);
+
+            let desc = document.createElement("div");
+            desc.classList.add("item-description");
+            desc.innerHTML = e["description"];
+            item.appendChild(desc);
+
+            document.querySelector(".chart-container").appendChild(item);
+          }
+        }
+      }
+      xhr.send(null);
+
+    }
+
+  </script>
+</body>
+
+</html>

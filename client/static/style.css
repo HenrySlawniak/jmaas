@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css?family=Lato|Slabo+27px');
+html, body {
+  min-height: 100vh;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: #262626;
+  color: #fff;
+  font-family: 'Lato', sans-serif;
+  font-size: larger;
+}
+
+html {
+  background: #FFEB3B;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Slabo 27px', serif;
+}
+
+a {
+  text-decoration: none;
+  color: #03A9F4;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #03A9F4;
+}
+
+.container {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+}
+
+.intro {
+  text-align: center;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column-reverse;
+  align-items: center;
+  align-self: center;
+  align-content: center;
+}
+
+.chart-item.active {
+  box-shadow: 0 0 100rem #0000ff; // animate an alarm and somehow move a pointer here
+}
+
+.chart-item {
+  min-height: 10vh;
+  height: 100%;
+  padding: 1rem;
+  width: 100%;
+  max-width: 50%;
+  min-width: 20vw;
+  text-align: center;
+  text-shadow: 0 0 0.5rem #000000;
+}
+
+.item-title {}
+
+.item-description {}
