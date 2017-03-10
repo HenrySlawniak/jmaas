@@ -62,7 +62,7 @@ a:hover {
 .chart-item {
   min-height: 10vh;
   height: 100%;
-  padding: 1rem;
+  padding: 0.25rem;
   width: 100%;
   max-width: 50%;
   min-width: 20vw;
