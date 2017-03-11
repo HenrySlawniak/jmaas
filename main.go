@@ -46,7 +46,7 @@ const version = "1.1.0"
 var devMode = flag.Bool("dev", false, "Puts the server in developer mode, will bind to :34265 and will not autocert")
 var domains = flag.String("domain", "jmaas.servercentralbathroomselfies.com", "A comma-seperaated list of domains to get a certificate for.")
 var client = &http.Client{}
-var level = 0
+var level = 5
 
 var messages = map[int]map[string]interface{}{
 	0: map[string]interface{}{"description": "<p>Playing rocket league.</p><p>Yelling at kids about the good ol' days.</p>", "background": "#757575", "title": "Almost Relaxed"},

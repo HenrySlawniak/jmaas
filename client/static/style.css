@@ -55,10 +55,6 @@ a:hover {
   align-content: center;
 }
 
-.chart-item.active {
-  box-shadow: 0 0 100rem #0000ff; // animate an alarm and somehow move a pointer here
-}
-
 .chart-item {
   min-height: 10vh;
   height: 100%;
@@ -74,12 +70,13 @@ a:hover {
   position: absolute;
   width: 0px;
   height: 0px;
-  left: 50px;
+  align-self: flex-start;
   top: -180px;
   border-top: 60px solid transparent;
   border-bottom: 60px solid transparent;
-  border-left: 90px solid #ff0000;
-  transition: top 0.45s ease-in-out;
+  border-left: 90px solid #F44336;
+  background-image: url("/static/arrow.svg");
+  transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .item-title {}
