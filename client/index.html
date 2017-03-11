@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#FFEB3B" />
+  <meta name="theme-color" content="#FFEB3B" id="theme" />
   <title>The Josh Mills Anger Advisory System</title>
   <link defer rel="stylesheet" href="/static/style.css" />
 </head>
@@ -13,7 +13,7 @@
 <body>
   <div class="content">
     <div class="container">
-      <div class="pointer"></div>
+      <img src="/static/arrow.png" class="pointer" />
       <div class="intro">
         <h1>The Josh Mills Anger Advisory System</h1>
       </div>
@@ -73,7 +73,9 @@
         console.log(resp);
         let target = document.querySelector(`[data-level="${resp}"]`);
         let rect = target.getBoundingClientRect();
-        pointer.style.top = `${rect.top +45}px`;
+        pointer.style.top = `${rect.top}px`;
+        pointer.style.right = `${rect.right + 10}px`;
+        document.querySelector("#theme").setAttribute("content", target.style.background);
       }
       xhr.send(null);
     }

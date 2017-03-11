@@ -14,7 +14,7 @@ body {
 }
 
 html {
-  background: #FFEB3B;
+  background: #212121;
 }
 
 * {
@@ -68,14 +68,9 @@ a:hover {
 
 .pointer {
   position: absolute;
-  width: 0px;
-  height: 0px;
-  align-self: flex-start;
   top: -180px;
-  border-top: 60px solid transparent;
-  border-bottom: 60px solid transparent;
-  border-left: 90px solid #F44336;
-  background-image: url("/static/arrow.svg");
+  height: 180px;
+  width: auto;
   transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
