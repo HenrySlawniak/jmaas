@@ -23,6 +23,17 @@
     </div>
   </div>
   <script defer>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').then(function (registration) {
+          // Registration was successful
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }).catch(function (err) {
+          // registration failed :(
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
     document.addEventListener("DOMContentLoaded", _ => {
       loadChartItems();
       startUpdate();
@@ -71,7 +82,6 @@
       xhr.open("GET", url, true);
       xhr.onload = _ => {
         const resp = JSON.parse(xhr.responseText);
-        console.log(resp);
         let target = document.querySelector(`[data-level="${resp}"]`);
         let rect = target.getBoundingClientRect();
         pointer.style.top = `${rect.top}px`;
