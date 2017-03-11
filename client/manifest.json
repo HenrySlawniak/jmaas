@@ -1,5 +1,6 @@
 {
   "name": "The Josh Mills Anger Advisory System",
+  "short_name": "jmaas",
   "start_url": "/",
   "background_color": "#212121",
   "theme_color": "#262626",
