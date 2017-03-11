@@ -33,6 +33,7 @@ import (
 	"golang.org/x/net/http2"
 	"image/color"
 	"io/ioutil"
+	"math/rand"
 	"mime"
 	"net/http"
 	"os"
@@ -46,7 +47,7 @@ const version = "1.1.0"
 var devMode = flag.Bool("dev", false, "Puts the server in developer mode, will bind to :34265 and will not autocert")
 var domains = flag.String("domain", "jmaas.servercentralbathroomselfies.com", "A comma-seperaated list of domains to get a certificate for.")
 var client = &http.Client{}
-var level = 5
+var level int32 = 5
 
 var messages = map[int]map[string]interface{}{
 	0: map[string]interface{}{"description": "<p>Playing rocket league.</p><p>Yelling at kids about the good ol' days.</p>", "background": "#757575", "title": "Almost Relaxed"},
@@ -72,6 +73,13 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(fmt.Sprintf("%d", level)))
 	})
+
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+			level = rand.Int31n(6)
+		}
+	}()
 
 	if *devMode {
 		srv := &http.Server{
