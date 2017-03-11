@@ -64,10 +64,22 @@ a:hover {
   height: 100%;
   padding: 0.25rem;
   width: 100%;
-  max-width: 50%;
+  max-width: 75vw;
   min-width: 20vw;
   text-align: center;
   text-shadow: 0 0 0.5rem #000000;
+}
+
+.pointer {
+  position: absolute;
+  width: 0px;
+  height: 0px;
+  left: 50px;
+  top: -180px;
+  border-top: 60px solid transparent;
+  border-bottom: 60px solid transparent;
+  border-left: 90px solid #ff0000;
+  transition: top 0.45s ease-in-out;
 }
 
 .item-title {}

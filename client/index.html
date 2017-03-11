@@ -14,16 +14,17 @@
   <div class="content">
     <div class="container">
       <div class="intro">
-        <h3>Welcome to</h3>
         <h1>The Josh Mills Anger Advisory System</h1>
       </div>
       <div class="chart-container">
       </div>
+      <div class="pointer"></div>
     </div>
   </div>
   <script defer>
     document.addEventListener("DOMContentLoaded", _ => {
       loadChartItems();
+      startUpdate();
     });
 
     function loadChartItems() {
@@ -38,6 +39,7 @@
             let item = document.createElement("div");
             item.style.background = e["background"];
             item.classList.add("chart-item");
+            item.setAttribute("data-level", key);
 
             let title = document.createElement("h1");
             title.classList.add("item-title");
@@ -55,6 +57,25 @@
       }
       xhr.send(null);
 
+    }
+
+    function startUpdate() {
+      window.setInterval(updateLevel, 500)
+    }
+
+    function updateLevel() {
+      let pointer = document.querySelector(".pointer");
+      const xhr = new XMLHttpRequest();
+      const url = `/api/currentlevel`;
+      xhr.open("GET", url, true);
+      xhr.onload = _ => {
+        const resp = JSON.parse(xhr.responseText);
+        console.log(resp);
+        let target = document.querySelector(`[data-level="${resp}"]`);
+        let rect = target.getBoundingClientRect();
+        pointer.style.top = `${rect.top +45}px`;
+      }
+      xhr.send(null);
     }
 
   </script>

@@ -68,6 +68,10 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", indexHandler())
 	mux.HandleFunc("/api/levels", levelHandler())
+	mux.HandleFunc("/api/currentlevel", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(fmt.Sprintf("%d", level)))
+	})
 
 	if *devMode {
 		srv := &http.Server{
