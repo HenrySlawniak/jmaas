@@ -1,0 +1,32 @@
+{
+    "0": {
+        "background": "#757575",
+        "description": "<p>Playing rocket league.</p><p>Yelling at kids about the good ol' days.</p>",
+        "title": "Almost Relaxed"
+    },
+    "1": {
+        "background": "#43A047",
+        "description": "<p>Sitting on couch petting kitty.</p><p>Fresh case of beer.</p>",
+        "title": "Low"
+    },
+    "2": {
+        "background": "#039BE5",
+        "description": "<p>Coworkers have published anger advisory chart.</p>",
+        "title": "Guarded"
+    },
+    "3": {
+        "background": "#FDD835",
+        "description": "<p>UPS, FedEx, and CEVA trucks in the dock.</p><p>Servers that are bigger than the cabinet.</p><p>LOAs with wrong information.</p>",
+        "title": "Elevated"
+    },
+    "4": {
+        "background": "#FB8C00",
+        "description": "<p>Mislabeled cables.\nRack nuts under the nail.</p><p>Calls from Kathy.</p>",
+        "title": "High"
+    },
+    "5": {
+        "background": "#E53935",
+        "description": "<p>Having to redo work due to other departments' mistakes.</p><p>Cardboard box to the head.</p>",
+        "title": "Severe"
+    }
+}

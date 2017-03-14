@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Henry Slawniak <https://henry.computer/>
+// Copyright (c) 2017 Henry Slawniak <https://henry.computer/>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,6 @@ package main
 import (
 	"crypto/sha512"
 	"crypto/tls"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/HenrySlawniak/go-identicon"
@@ -48,15 +47,6 @@ var devMode = flag.Bool("dev", false, "Puts the server in developer mode, will b
 var domains = flag.String("domain", "jmaas.servercentralbathroomselfies.com", "A comma-seperaated list of domains to get a certificate for.")
 var client = &http.Client{}
 var level int32 = 5
-
-var messages = map[int]map[string]interface{}{
-	0: map[string]interface{}{"description": "<p>Playing rocket league.</p><p>Yelling at kids about the good ol' days.</p>", "background": "#757575", "title": "Almost Relaxed"},
-	1: map[string]interface{}{"description": "<p>Sitting on couch petting kitty.</p><p>Fresh case of beer.</p>", "background": "#43A047", "title": "Low"},
-	2: map[string]interface{}{"description": "<p>Coworkers have published anger advisory chart.</p>", "background": "#039BE5", "title": "Guarded"},
-	3: map[string]interface{}{"description": "<p>UPS, FedEx, and CEVA trucks in the dock.</p><p>Servers that are bigger than the cabinet.</p><p>LOAs with wrong information.</p>", "background": "#FDD835", "title": "Elevated"},
-	4: map[string]interface{}{"description": "<p>Mislabeled cables.\nRack nuts under the nail.</p><p>Calls from Kathy.</p>", "background": "#FB8C00", "title": "High"},
-	5: map[string]interface{}{"description": "<p>Having to redo work due to other departments' mistakes.</p><p>Cardboard box to the head.</p>", "background": "#E53935", "title": "Severe"},
-}
 
 func main() {
 	flag.Parse()
@@ -131,9 +121,8 @@ func generateIco(dat []byte) []byte {
 
 func levelHandler() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		j, _ := json.Marshal(messages)
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(j)
+		serveFile(w, r, "levels.json")
 	})
 }
 
