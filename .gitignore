@@ -4,3 +4,4 @@ config.json
 download/*
 .secret
 encode/
+tokens.gob
