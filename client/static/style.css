@@ -85,6 +85,8 @@ a:hover {
   padding: 1rem;
   font-size: large;
   background: #fff;
+  opacity: 0;
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .control input {

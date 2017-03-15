@@ -35,9 +35,9 @@
     });
 
     document.addEventListener("DOMContentLoaded", _ => {
-      loadToken();
       loadChartItems();
       startUpdate();
+      window.setTimeout(loadToken, 1000);
     });
 
     document.querySelector("#token").addEventListener("change", tokenUpdate);
@@ -52,6 +52,14 @@
 
     function lowerLevel() {
       sendLevel(false);
+    }
+
+    function showTokenInterface() {
+      document.querySelector(".control").style.opacity = 1;
+    }
+
+    function hideTokenInterface() {
+      document.querySelector(".control").style.opacity = 0;
     }
 
     function sendLevel(bigger) {
@@ -79,7 +87,10 @@
 
     function loadToken() {
       if (window.localStorage) {
-        document.querySelector("#token").value = localStorage.getItem('token');
+        if (localStorage.getItem("token") != "") {
+          document.querySelector("#token").value = localStorage.getItem('token');
+          showTokenInterface();
+        }
       }
     }
 
