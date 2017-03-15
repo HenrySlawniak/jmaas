@@ -24,6 +24,7 @@ import (
 	"crypto/sha512"
 	"crypto/tls"
 	"encoding/gob"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/go-playground/log"
@@ -70,6 +71,19 @@ func randStringRunes(n int) string {
 	return string(b)
 }
 
+func getNumLevels() int {
+	lvls := map[int]map[string]interface{}{}
+	f, err := os.Open("levels.json")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	decoder := json.NewDecoder(f)
+	decoder.Decode(&lvls)
+	return len(lvls)
+}
+
 func main() {
 	flag.Parse()
 	cLog := console.New()
@@ -82,6 +96,8 @@ func main() {
 	mux.HandleFunc("/", indexHandler())
 	mux.HandleFunc("/api/levels", levelHandler())
 	mux.HandleFunc("/api/setlevel", setLevelHandler())
+	mux.HandleFunc("/api/inclevel", increaseLevelHandler())
+	mux.HandleFunc("/api/declevel", decreaseLevelHandler())
 	mux.HandleFunc("/api/currentlevel", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(fmt.Sprintf("%d", level)))
@@ -223,12 +239,77 @@ func setLevelHandler() http.HandlerFunc {
 			return
 		}
 
+		numlvls := getNumLevels()
+		if newlvl > numlvls-1 {
+			newlvl = newlvl - 1
+		}
+
 		log.Infof("%s setting level to %d", attr.Note, newlvl)
 		level = newlvl
 
 		w.Header().Set("Content-Type", "text/plain")
 		w.Write([]byte("Level set successfully"))
-		w.WriteHeader(http.StatusOK)
+		return
+
+	})
+}
+
+func increaseLevelHandler() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get("Token")
+		if token == "" {
+			w.Header().Set("Content-Type", "text/plain")
+			w.Write([]byte("no token provided"))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		attr, authed := isTokenAuthed(token)
+		if !authed {
+			w.Header().Set("Content-Type", "text/plain")
+			w.Write([]byte("token is not authed"))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		level++
+		numlvls := getNumLevels()
+		if level > numlvls-1 {
+			level = numlvls - 1
+		}
+		log.Infof("%s setting updating level to %d", attr.Note, level)
+
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("Level set successfully"))
+		return
+
+	})
+}
+
+func decreaseLevelHandler() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get("Token")
+		if token == "" {
+			w.Header().Set("Content-Type", "text/plain")
+			w.Write([]byte("no token provided"))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		attr, authed := isTokenAuthed(token)
+		if !authed {
+			w.Header().Set("Content-Type", "text/plain")
+			w.Write([]byte("token is not authed"))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		level--
+		if level < 0 {
+			level = 0
+		}
+		log.Infof("%s setting updating level to %d", attr.Note, level)
+
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("Level set successfully"))
 		return
 
 	})

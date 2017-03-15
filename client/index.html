@@ -20,24 +20,68 @@
       </div>
       <div class="chart-container">
       </div>
+      <div class="control">
+        <input id="token" placeholder="token" />
+        <button id="increase">+</button>
+        <button id="decrease">-</button>
+      </div>
     </div>
   </div>
   <script defer>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js').then(function (registration) {
-          // Registration was successful
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }).catch(function (err) {
-          // registration failed :(
-          console.log('ServiceWorker registration failed: ', err);
-        });
-      });
-    }
+    navigator.serviceWorker.getRegistrations().then(function (registrations) {
+      for (let registration of registrations) {
+        registration.unregister()
+      }
+    });
+
     document.addEventListener("DOMContentLoaded", _ => {
+      loadToken();
       loadChartItems();
       startUpdate();
     });
+
+    document.querySelector("#token").addEventListener("change", tokenUpdate);
+    document.querySelector("#token").addEventListener("keydown", tokenUpdate);
+
+    document.querySelector("#increase").addEventListener("click", raiseLevel);
+    document.querySelector("#decrease").addEventListener("click", lowerLevel);
+
+    function raiseLevel() {
+      sendLevel(true);
+    }
+
+    function lowerLevel() {
+      sendLevel(false);
+    }
+
+    function sendLevel(bigger) {
+      const xhr = new XMLHttpRequest();
+      var url
+      if (bigger) {
+        url = "/api/inclevel"
+      }
+      else {
+        url = "/api/declevel"
+      }
+
+      xhr.open("GET", url, true);
+      xhr.setRequestHeader("Token", localStorage.getItem('token'));
+      xhr.send(null);
+    }
+
+    function tokenUpdate() {
+      let tokenInput = document.querySelector("#token").value;
+      console.log(tokenInput);
+      if (window.localStorage) {
+        localStorage.setItem('token', tokenInput);
+      }
+    }
+
+    function loadToken() {
+      if (window.localStorage) {
+        document.querySelector("#token").value = localStorage.getItem('token');
+      }
+    }
 
     function loadChartItems() {
       const xhr = new XMLHttpRequest();
