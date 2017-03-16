@@ -42,6 +42,7 @@
 
     document.querySelector("#token").addEventListener("change", tokenUpdate);
     document.querySelector("#token").addEventListener("keydown", tokenUpdate);
+    document.querySelector("#token").addEventListener("paste", tokenUpdate);
 
     document.querySelector("#increase").addEventListener("click", raiseLevel);
     document.querySelector("#decrease").addEventListener("click", lowerLevel);
