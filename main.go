@@ -103,7 +103,6 @@ func main() {
 		w.Write([]byte(fmt.Sprintf("%d", level)))
 	})
 
-	log.Debug(addNewAuthedToken("autogen"))
 	printTokens()
 
 	if *devMode {
