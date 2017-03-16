@@ -46,6 +46,17 @@
     document.querySelector("#increase").addEventListener("click", raiseLevel);
     document.querySelector("#decrease").addEventListener("click", lowerLevel);
 
+    window.addEventListener("keydown", e => {
+      if (e.shiftKey && e.altKey && e.key == "J") {
+        if (document.querySelector(".control").style.opacity > 0) {
+          hideTokenInterface();
+        }
+        else {
+          showTokenInterface();
+        }
+      }
+    });
+
     function raiseLevel() {
       sendLevel(true);
     }
@@ -89,7 +100,6 @@
       if (window.localStorage) {
         if (localStorage.getItem("token") != "") {
           document.querySelector("#token").value = localStorage.getItem('token');
-          showTokenInterface();
         }
       }
     }
