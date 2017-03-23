@@ -130,3 +130,15 @@ a:hover {
 .control button#decrease:active {
   background: #1B5E20;
 }
+
+.links {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  color: #fff;
+  padding: 1rem;
+}
+
+.links a {
+  color: #E91E63;
+}
