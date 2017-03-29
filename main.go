@@ -37,7 +37,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -49,26 +48,9 @@ var domains = flag.String("domain", "angrymills.net", "A comma-seperaated list o
 var client = &http.Client{}
 var level = 0
 
-type tokenAttr struct {
-	Level int
-	Note  string
-}
-
-type tokenList map[string]tokenAttr
-
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
 func init() {
 	gob.Register(tokenList{})
 	rand.Seed(time.Now().UnixNano())
-}
-
-func randStringRunes(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
 }
 
 func getNumLevels() int {
@@ -149,178 +131,6 @@ func main() {
 
 func httpRedirectHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "https://"+r.Host+r.URL.String(), http.StatusMovedPermanently)
-}
-
-func printTokens() {
-	f, err := os.OpenFile("tokens.gob", os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	tokens := tokenList{}
-	decoder := gob.NewDecoder(f)
-	decoder.Decode(&tokens)
-
-	log.Debug(tokens)
-}
-
-func addNewAuthedToken(note string) string {
-	f, err := os.OpenFile("tokens.gob", os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		panic(err)
-	}
-
-	tokens := tokenList{}
-	decoder := gob.NewDecoder(f)
-	decoder.Decode(&tokens)
-	f.Close()
-
-	token := randStringRunes(25)
-	tokens[token] = tokenAttr{Level: 1, Note: note}
-
-	f, err = os.OpenFile("tokens.gob", os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		panic(err)
-	}
-
-	encoder := gob.NewEncoder(f)
-	encoder.Encode(tokens)
-	f.Close()
-
-	return token
-}
-
-func isTokenAuthed(token string) (tokenAttr, bool) {
-	f, err := os.OpenFile("tokens.gob", os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	tokens := tokenList{}
-	decoder := gob.NewDecoder(f)
-	decoder.Decode(&tokens)
-
-	attr, exists := tokens[token]
-	return attr, exists && attr.Level > 0
-}
-
-func setLevelHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Token")
-		if token == "" {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("no token provided"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		attr, authed := isTokenAuthed(token)
-		if !authed {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("token is not authed"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		log.Infof("Got authed token %s with note '%s'", token, attr.Note)
-		lvlstr := r.Header.Get("New-Level")
-		if lvlstr == "" {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("you must provide a New-Level header"))
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		newlvl, err := strconv.Atoi(lvlstr)
-		if err != nil {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("error processing New-Level: " + err.Error()))
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		numlvls := getNumLevels()
-		if newlvl > numlvls-1 {
-			newlvl = newlvl - 1
-		}
-
-		log.Infof("%s setting level to %d", attr.Note, newlvl)
-		level = newlvl
-
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("Level set successfully"))
-		return
-
-	})
-}
-
-func increaseLevelHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Token")
-		if token == "" {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("no token provided"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		attr, authed := isTokenAuthed(token)
-		if !authed {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("token is not authed"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		level++
-		numlvls := getNumLevels()
-		if level > numlvls-1 {
-			level = numlvls - 1
-		}
-		log.Infof("%s setting updating level to %d", attr.Note, level)
-
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("Level set successfully"))
-		return
-
-	})
-}
-
-func decreaseLevelHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Token")
-		if token == "" {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("no token provided"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		attr, authed := isTokenAuthed(token)
-		if !authed {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("token is not authed"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		level--
-		if level < 0 {
-			level = 0
-		}
-		log.Infof("%s setting updating level to %d", attr.Note, level)
-
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("Level set successfully"))
-		return
-
-	})
-}
-
-func levelHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		serveFile(w, r, "levels.json")
-	})
 }
 
 func indexHandler() http.HandlerFunc {
