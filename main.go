@@ -346,7 +346,10 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 	}
 	if strings.Contains(path, "index.html") {
 		if pusher, ok := w.(http.Pusher); ok {
-			if err := pusher.Push("/stastic/style.css", nil); err != nil {
+			if err := pusher.Push("/static/style.css", nil); err != nil {
+				log.Warnf("Failed to push: %v", err)
+			}
+			if err := pusher.Push("/static/arrow.png", nil); err != nil {
 				log.Warnf("Failed to push: %v", err)
 			}
 		}
