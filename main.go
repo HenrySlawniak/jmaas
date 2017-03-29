@@ -45,7 +45,7 @@ import (
 const version = "1.1.0"
 
 var devMode = flag.Bool("dev", false, "Puts the server in developer mode, will bind to :34265 and will not autocert")
-var domains = flag.String("domain", "jmaas.servercentralbathroomselfies.com,baklavodka.com,angrymills.net", "A comma-seperaated list of domains to get a certificate for.")
+var domains = flag.String("domain", "angrymills.net", "A comma-seperaated list of domains to get a certificate for.")
 var client = &http.Client{}
 var level = 0
 
@@ -343,6 +343,13 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 		http.Error(w, "Could not read file", http.StatusInternalServerError)
 		fmt.Printf("%s:%s\n", path, err.Error())
 		return
+	}
+	if strings.Contains(path, "index.html") {
+		if pusher, ok := w.(http.Pusher); ok {
+			if err := pusher.Push("/stastic/style.css", nil); err != nil {
+				log.Warnf("Failed to push: %v", err)
+			}
+		}
 	}
 	mime := mime.TypeByExtension(filepath.Ext(path))
 	w.Header().Set("Content-Type", mime)
