@@ -154,7 +154,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 		fmt.Printf("%s:%s\n", path, err.Error())
 		return
 	}
-	if strings.Contains(path, "index.html") {
+	if strings.Contains(path, ".html") {
 		if pusher, ok := w.(http.Pusher); ok {
 			if err := pusher.Push("/static/style.css", nil); err != nil {
 				log.Warnf("Failed to push: %v", err)
