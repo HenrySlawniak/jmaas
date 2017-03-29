@@ -85,6 +85,8 @@ func main() {
 		w.Write([]byte(fmt.Sprintf("%d", level)))
 	})
 
+	mux.HandleFunc("/api/tokens/list", listTokenHandler())
+
 	addNewAuthedToken("autogen")
 
 	printTokens()

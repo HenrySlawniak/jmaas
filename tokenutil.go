@@ -22,8 +22,10 @@ package main
 
 import (
 	"encoding/gob"
+	"encoding/json"
 	"github.com/go-playground/log"
 	"math/rand"
+	"net/http"
 	"os"
 )
 
@@ -56,6 +58,20 @@ func printTokens() {
 	decoder.Decode(&tokens)
 
 	log.Debug(tokens)
+}
+
+func getTokenList() *tokenList {
+	f, err := os.OpenFile("tokens.gob", os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	tokens := tokenList{}
+	decoder := gob.NewDecoder(f)
+	decoder.Decode(&tokens)
+
+	return &tokens
 }
 
 func addNewAuthedToken(note string) string {
@@ -97,4 +113,37 @@ func isTokenAuthed(token string) (tokenAttr, bool) {
 
 	attr, exists := tokens[token]
 	return attr, exists && attr.Level > 0
+}
+
+func listTokenHandler() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get("Token")
+		if token == "" {
+			w.Header().Set("Content-Type", "text/plain")
+			j, _ := json.Marshal("no token provided")
+			w.Write(j)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		_, authed := isTokenAuthed(token)
+		if !authed {
+			w.Header().Set("Content-Type", "text/plain")
+			j, _ := json.Marshal("token is not authed")
+			w.Write(j)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		if r.URL.Query().Get("pretty") == "true" {
+			w.Header().Set("Content-Type", "text/plain")
+			j, _ := json.MarshalIndent(getTokenList(), "", "  ")
+			w.Write(j)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		j, _ := json.Marshal(getTokenList())
+		w.Write(j)
+	})
 }

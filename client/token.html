@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#FFEB3B" id="theme" />
+  <link rel="icon" href="/static/icon-256.png">
+  <title>The Josh Mills Anger Advisory System</title>
+  <link defer rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <div class="content">
+    <div class="container">
+      <div class="card" id="tokenList">
+
+      </div>
+      <div class="links">
+        Made with <a href="https://github.com/HenrySlawniak/jmaas">&lt;3</a>
+      </div>
+    </div>
+  </div>
+  <script defer>
+    document.addEventListener("DOMContentLoaded", _ => {
+      let token;
+      if (window.localStorage) {
+        if (localStorage.getItem("token") != "") {
+          token = localStorage.getItem('token');
+        }
+      }
+
+      if (token != null) {
+        loadTokenList();
+      }
+    });
+
+    function loadTokenList() {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", "/api/tokens/list", true);
+      xhr.setRequestHeader("Token", localStorage.getItem('token'));
+      xhr.onload = _ => {
+        const resp = JSON.parse(xhr.responseText);
+        console.log(resp);
+        for (var k in resp) {
+          if (resp.hasOwnProperty(k)) {
+            let token = resp[k];
+            let elem = document.createElement("div");
+            elem.innerHTML = `${k} "${token["Note"]}": ${token["Level"]}`;
+            document.querySelector("#tokenList").appendChild(elem);
+          }
+        }
+        // document.querySelector("#tokenList").innerHTML = JSON.stringify(resp);
+      }
+      xhr.send(null);
+    }
+
+  </script>
+</body>
+
+</html>
