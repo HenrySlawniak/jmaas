@@ -21,7 +21,7 @@
 package main
 
 import (
-	"crypto/sha512"
+	"crypto/md5"
 	"crypto/tls"
 	"encoding/gob"
 	"encoding/json"
@@ -43,10 +43,19 @@ import (
 
 const version = "1.1.0"
 
-var devMode = flag.Bool("dev", false, "Puts the server in developer mode, will bind to :34265 and will not autocert")
-var domains = flag.String("domain", "angrymills.net", "A comma-seperaated list of domains to get a certificate for.")
-var client = &http.Client{}
-var level = 0
+var (
+	devMode = flag.Bool("dev", false, "Puts the server in developer mode, will bind to :34265 and will not autocert")
+	domains = flag.String("domain", "angrymills.net", "A comma-seperaated list of domains to get a certificate for.")
+	client  = &http.Client{}
+	level   = 0
+	sums    = map[string]fileSum{}
+)
+
+type fileSum struct {
+	Time     time.Time
+	Sum      string
+	Modified time.Time
+}
 
 func init() {
 	gob.Register(tokenList{})
@@ -147,15 +156,30 @@ func indexHandler() http.HandlerFunc {
 }
 
 func serveFile(w http.ResponseWriter, r *http.Request, path string) {
+	var err error
 	if path == "./client/" {
 		path = "./client/index.html"
 	}
-	content, sum, mod, err := readFile(path)
-	if err != nil {
-		http.Error(w, "Could not read file", http.StatusInternalServerError)
-		fmt.Printf("%s:%s\n", path, err.Error())
-		return
+
+	var (
+		sum     string
+		content []byte
+		mod     time.Time
+	)
+
+	fileSum := sums[path]
+	if fileSum.Time.Add(time.Hour).Unix() > time.Now().Unix() {
+		content, sum, mod, err = readFile(path)
+		if err != nil {
+			http.Error(w, "Could not read file", http.StatusInternalServerError)
+			fmt.Printf("%s:%s\n", path, err.Error())
+			return
+		}
+	} else {
+		sum = fileSum.Sum
+		mod = fileSum.Modified
 	}
+
 	if strings.Contains(path, ".html") {
 		if pusher, ok := w.(http.Pusher); ok {
 			if err := pusher.Push("/static/style.css", nil); err != nil {
@@ -168,14 +192,20 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 	}
 	mime := mime.TypeByExtension(filepath.Ext(path))
 	w.Header().Set("Content-Type", mime)
-	w.Header().Set("Cache-Control", "public, no-cache")
+	w.Header().Set("Cache-Control", "public")
 	w.Header().Set("Last-Modified", mod.Format(time.RFC1123))
+	w.Header().Set("ETag", sum)
 	if r.Header.Get("If-None-Match") == sum {
 		w.WriteHeader(http.StatusNotModified)
-		w.Header().Set("ETag", sum)
 		return
+	} else if len(content) < 1 {
+		content, sum, mod, err = readFile(path)
+		if err != nil {
+			http.Error(w, "Could not read file", http.StatusInternalServerError)
+			fmt.Printf("%s:%s\n", path, err.Error())
+			return
+		}
 	}
-	w.Header().Set("ETag", sum)
 	w.Write(content)
 }
 
@@ -196,5 +226,13 @@ func readFile(path string) ([]byte, string, time.Time, error) {
 		return nil, "", time.Now(), err
 	}
 
-	return cont, fmt.Sprintf("%x", sha512.Sum512(cont)), stat.ModTime(), nil
+	sum := fmt.Sprintf("%x", md5.Sum(cont))
+
+	sums[path] = fileSum{
+		Time:     time.Now(),
+		Sum:      sum,
+		Modified: stat.ModTime(),
+	}
+
+	return cont, sum, stat.ModTime(), nil
 }
