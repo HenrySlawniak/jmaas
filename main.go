@@ -73,17 +73,17 @@ func main() {
 	log.Info("Starting The Josh Mills Anger Advisory System")
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", indexHandler())
-	mux.HandleFunc("/api/levels", levelHandler())
-	mux.HandleFunc("/api/setlevel", setLevelHandler())
-	mux.HandleFunc("/api/inclevel", increaseLevelHandler())
-	mux.HandleFunc("/api/declevel", decreaseLevelHandler())
+	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/api/levels", levelHandler)
+	mux.HandleFunc("/api/setlevel", setLevelHandler)
+	mux.HandleFunc("/api/inclevel", increaseLevelHandler)
+	mux.HandleFunc("/api/declevel", decreaseLevelHandler)
 	mux.HandleFunc("/api/currentlevel", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(fmt.Sprintf("%d", level)))
 	})
 
-	mux.HandleFunc("/api/tokens/list", listTokenHandler())
+	mux.HandleFunc("/api/tokens/list", listTokenHandler)
 
 	addNewAuthedToken("autogen")
 
@@ -133,13 +133,11 @@ func httpRedirectHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "https://"+r.Host+r.URL.String(), http.StatusMovedPermanently)
 }
 
-func indexHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
-		if _, err := os.Stat("./client" + path); err == nil {
-			serveFile(w, r, "./client"+path)
-		} else {
-			serveFile(w, r, "./client/index.html")
-		}
-	})
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	if _, err := os.Stat("./client" + path); err == nil {
+		serveFile(w, r, "./client"+path)
+	} else {
+		serveFile(w, r, "./client/index.html")
+	}
 }

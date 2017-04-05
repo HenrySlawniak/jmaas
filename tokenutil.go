@@ -115,35 +115,33 @@ func isTokenAuthed(token string) (tokenAttr, bool) {
 	return attr, exists && attr.Level > 0
 }
 
-func listTokenHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Token")
-		if token == "" {
-			w.Header().Set("Content-Type", "text/plain")
-			j, _ := json.Marshal("no token provided")
-			w.Write(j)
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		_, authed := isTokenAuthed(token)
-		if !authed {
-			w.Header().Set("Content-Type", "text/plain")
-			j, _ := json.Marshal("token is not authed")
-			w.Write(j)
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		if r.URL.Query().Get("pretty") == "true" {
-			w.Header().Set("Content-Type", "text/plain")
-			j, _ := json.MarshalIndent(getTokenList(), "", "  ")
-			w.Write(j)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		j, _ := json.Marshal(getTokenList())
+func listTokenHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Token")
+	if token == "" {
+		w.Header().Set("Content-Type", "text/plain")
+		j, _ := json.Marshal("no token provided")
 		w.Write(j)
-	})
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	_, authed := isTokenAuthed(token)
+	if !authed {
+		w.Header().Set("Content-Type", "text/plain")
+		j, _ := json.Marshal("token is not authed")
+		w.Write(j)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if r.URL.Query().Get("pretty") == "true" {
+		w.Header().Set("Content-Type", "text/plain")
+		j, _ := json.MarshalIndent(getTokenList(), "", "  ")
+		w.Write(j)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	j, _ := json.Marshal(getTokenList())
+	w.Write(j)
 }

@@ -26,117 +26,109 @@ import (
 	"strconv"
 )
 
-func setLevelHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Token")
-		if token == "" {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("no token provided"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		attr, authed := isTokenAuthed(token)
-		if !authed {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("token is not authed"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		log.Infof("Got authed token %s with note '%s'", token, attr.Note)
-		lvlstr := r.Header.Get("New-Level")
-		if lvlstr == "" {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("you must provide a New-Level header"))
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		newlvl, err := strconv.Atoi(lvlstr)
-		if err != nil {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("error processing New-Level: " + err.Error()))
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		numlvls := getNumLevels()
-		if newlvl > numlvls-1 {
-			newlvl = newlvl - 1
-		}
-
-		level = newlvl
-
+func setLevelHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Token")
+	if token == "" {
 		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("Level set successfully"))
+		w.Write([]byte("no token provided"))
+		w.WriteHeader(http.StatusUnauthorized)
 		return
+	}
+	attr, authed := isTokenAuthed(token)
+	if !authed {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("token is not authed"))
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
-	})
+	log.Infof("Got authed token %s with note '%s'", token, attr.Note)
+	lvlstr := r.Header.Get("New-Level")
+	if lvlstr == "" {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("you must provide a New-Level header"))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	newlvl, err := strconv.Atoi(lvlstr)
+	if err != nil {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("error processing New-Level: " + err.Error()))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	numlvls := getNumLevels()
+	if newlvl > numlvls-1 {
+		newlvl = newlvl - 1
+	}
+
+	level = newlvl
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write([]byte("Level set successfully"))
+	return
+
 }
 
-func increaseLevelHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Token")
-		if token == "" {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("no token provided"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		_, authed := isTokenAuthed(token)
-		if !authed {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("token is not authed"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		level++
-		numlvls := getNumLevels()
-		if level > numlvls-1 {
-			level = numlvls - 1
-		}
-
+func increaseLevelHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Token")
+	if token == "" {
 		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("Level set successfully"))
+		w.Write([]byte("no token provided"))
+		w.WriteHeader(http.StatusUnauthorized)
 		return
+	}
+	_, authed := isTokenAuthed(token)
+	if !authed {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("token is not authed"))
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
-	})
+	level++
+	numlvls := getNumLevels()
+	if level > numlvls-1 {
+		level = numlvls - 1
+	}
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write([]byte("Level set successfully"))
+	return
+
 }
 
-func decreaseLevelHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Token")
-		if token == "" {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("no token provided"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		attr, authed := isTokenAuthed(token)
-		if !authed {
-			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte("token is not authed"))
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		level--
-		if level < 0 {
-			level = 0
-		}
-		log.Infof("%s setting updating level to %d", attr.Note, level)
-
+func decreaseLevelHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Token")
+	if token == "" {
 		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("Level set successfully"))
+		w.Write([]byte("no token provided"))
+		w.WriteHeader(http.StatusUnauthorized)
 		return
+	}
+	attr, authed := isTokenAuthed(token)
+	if !authed {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("token is not authed"))
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
-	})
+	level--
+	if level < 0 {
+		level = 0
+	}
+	log.Infof("%s setting updating level to %d", attr.Note, level)
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write([]byte("Level set successfully"))
+	return
+
 }
 
-func levelHandler() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		serveFile(w, r, "levels.json")
-	})
+func levelHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	serveFile(w, r, "levels.json")
 }
