@@ -26,6 +26,11 @@ import (
 	"strconv"
 )
 
+type socketMessage struct {
+	Type string
+	Data interface{}
+}
+
 func setLevelHandler(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Token")
 	if token == "" {
@@ -68,6 +73,8 @@ func setLevelHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte("Level set successfully"))
+
+	go webSocketPool.broadcastMessage(&socketMessage{Type: "levelupdate", Data: map[string]interface{}{"level": level}})
 	return
 
 }
@@ -96,6 +103,7 @@ func increaseLevelHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte("Level set successfully"))
+	go webSocketPool.broadcastMessage(&socketMessage{Type: "levelupdate", Data: map[string]interface{}{"level": level}})
 	return
 
 }
@@ -124,6 +132,7 @@ func decreaseLevelHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte("Level set successfully"))
+	go webSocketPool.broadcastMessage(&socketMessage{Type: "levelupdate", Data: map[string]interface{}{"level": level}})
 	return
 
 }

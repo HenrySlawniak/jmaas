@@ -84,8 +84,7 @@ func main() {
 	})
 
 	mux.HandleFunc("/api/tokens/list", listTokenHandler)
-
-	addNewAuthedToken("autogen")
+	mux.HandleFunc("/socket", webSocketHandler)
 
 	printTokens()
 
