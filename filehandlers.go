@@ -55,11 +55,10 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 
 	fileSum := sums[path]
 	if fileSum == nil {
-		log.Debugf("Sum not present, read from disk and serve | %s | %s", r.URL, r.RemoteAddr)
 		content, sum, mod, err = readFile(path)
 		if err != nil {
 			http.Error(w, "Could not read file", http.StatusInternalServerError)
-			fmt.Printf("%s:%s\n", path, err.Error())
+			log.Errorf("%s:%s\n", path, err.Error())
 			return
 		}
 		w.Write(content)
@@ -69,7 +68,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 		content, sum, mod, err = readFile(path)
 		if err != nil {
 			http.Error(w, "Could not read file", http.StatusInternalServerError)
-			fmt.Printf("%s:%s\n", path, err.Error())
+			log.Errorf("%s:%s\n", path, err.Error())
 			return
 		}
 	} else {
@@ -95,16 +94,14 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 	w.Header().Set("Last-Modified", mod.Format(time.RFC1123))
 	w.Header().Set("ETag", sum)
 	if r.Header.Get("If-None-Match") == sum {
-		log.Debugf("Etag matches | %s | %s", r.URL, r.RemoteAddr)
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}
 
-	log.Debugf("Etag not matched reading from disk | %s | %s", r.URL, r.RemoteAddr)
 	content, sum, mod, err = readFile(path)
 	if err != nil {
 		http.Error(w, "Could not read file", http.StatusInternalServerError)
-		fmt.Printf("%s:%s\n", path, err.Error())
+		log.Errorf("%s:%s\n", path, err.Error())
 		return
 	}
 	w.Write(content)

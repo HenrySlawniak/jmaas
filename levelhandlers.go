@@ -65,7 +65,6 @@ func setLevelHandler() http.HandlerFunc {
 			newlvl = newlvl - 1
 		}
 
-		log.Infof("%s setting level to %d", attr.Note, newlvl)
 		level = newlvl
 
 		w.Header().Set("Content-Type", "text/plain")
@@ -84,7 +83,7 @@ func increaseLevelHandler() http.HandlerFunc {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		attr, authed := isTokenAuthed(token)
+		_, authed := isTokenAuthed(token)
 		if !authed {
 			w.Header().Set("Content-Type", "text/plain")
 			w.Write([]byte("token is not authed"))
@@ -97,7 +96,6 @@ func increaseLevelHandler() http.HandlerFunc {
 		if level > numlvls-1 {
 			level = numlvls - 1
 		}
-		log.Infof("%s setting updating level to %d", attr.Note, level)
 
 		w.Header().Set("Content-Type", "text/plain")
 		w.Write([]byte("Level set successfully"))
