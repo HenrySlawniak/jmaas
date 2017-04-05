@@ -48,7 +48,7 @@ var (
 	domains = flag.String("domain", "angrymills.net", "A comma-seperaated list of domains to get a certificate for.")
 	client  = &http.Client{}
 	level   = 0
-	sums    = map[string]fileSum{}
+	sums    = map[string]*fileSum{}
 )
 
 type fileSum struct {
@@ -168,6 +168,17 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 	)
 
 	fileSum := sums[path]
+	if fileSum == nil {
+		log.Debugf("Sum not present, read from disk and serve | %s | %s", r.URL, r.RemoteAddr)
+		content, sum, mod, err = readFile(path)
+		if err != nil {
+			http.Error(w, "Could not read file", http.StatusInternalServerError)
+			fmt.Printf("%s:%s\n", path, err.Error())
+			return
+		}
+		w.Write(content)
+		return
+	}
 	if fileSum.Time.Add(time.Hour).Unix() > time.Now().Unix() {
 		content, sum, mod, err = readFile(path)
 		if err != nil {
@@ -176,6 +187,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 			return
 		}
 	} else {
+		content = []byte{}
 		sum = fileSum.Sum
 		mod = fileSum.Modified
 	}
@@ -190,23 +202,27 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 			}
 		}
 	}
+
 	mime := mime.TypeByExtension(filepath.Ext(path))
 	w.Header().Set("Content-Type", mime)
 	w.Header().Set("Cache-Control", "public")
 	w.Header().Set("Last-Modified", mod.Format(time.RFC1123))
 	w.Header().Set("ETag", sum)
 	if r.Header.Get("If-None-Match") == sum {
+		log.Debugf("Etag matches | %s | %s", r.URL, r.RemoteAddr)
 		w.WriteHeader(http.StatusNotModified)
 		return
-	} else if len(content) < 1 {
-		content, sum, mod, err = readFile(path)
-		if err != nil {
-			http.Error(w, "Could not read file", http.StatusInternalServerError)
-			fmt.Printf("%s:%s\n", path, err.Error())
-			return
-		}
+	}
+
+	log.Debugf("Etag not matched reading from disk | %s | %s", r.URL, r.RemoteAddr)
+	content, sum, mod, err = readFile(path)
+	if err != nil {
+		http.Error(w, "Could not read file", http.StatusInternalServerError)
+		fmt.Printf("%s:%s\n", path, err.Error())
+		return
 	}
 	w.Write(content)
+	return
 }
 
 func readFile(path string) ([]byte, string, time.Time, error) {
@@ -228,7 +244,7 @@ func readFile(path string) ([]byte, string, time.Time, error) {
 
 	sum := fmt.Sprintf("%x", md5.Sum(cont))
 
-	sums[path] = fileSum{
+	sums[path] = &fileSum{
 		Time:     time.Now(),
 		Sum:      sum,
 		Modified: stat.ModTime(),
