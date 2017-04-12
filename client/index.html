@@ -31,11 +31,13 @@
     </div>
   </div>
   <script defer>
-    navigator.serviceWorker.getRegistrations().then(function (registrations) {
-      for (let registration of registrations) {
-        registration.unregister()
-      }
-    });
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+          registration.unregister()
+        }
+      });
+    }
 
     document.addEventListener("DOMContentLoaded", _ => {
       loadChartItems();
