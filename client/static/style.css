@@ -70,7 +70,7 @@ a:hover {
   top: -180px;
   height: 180px;
   width: auto;
-  transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1), right 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .item-title {}

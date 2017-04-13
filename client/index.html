@@ -39,6 +39,17 @@
       });
     }
 
+    window.addEventListener("resize", _ => {
+      const xhr = new XMLHttpRequest();
+      const url = `/api/currentlevel`;
+      xhr.open("GET", url, true);
+      xhr.onload = _ => {
+        const resp = JSON.parse(xhr.responseText);
+        updateArrow(resp);
+      }
+      xhr.send(null);
+    });
+
     document.addEventListener("DOMContentLoaded", _ => {
       loadChartItems();
       window.setTimeout(openSocket, 1000);
@@ -164,12 +175,7 @@
 
         switch (resp.Type) {
         case "levelupdate":
-          let pointer = document.querySelector(".pointer");
-          let target = document.querySelector(`[data-level="${resp.Data.level}"]`);
-          let rect = target.getBoundingClientRect();
-          pointer.style.top = `${rect.top}px`;
-          pointer.style.right = `${rect.right + 10}px`;
-          document.querySelector("#theme").setAttribute("content", target.style.background);
+          updateArrow(resp.Data.level);
           break;
         default:
           console.log("unknown message", resp)
@@ -185,6 +191,17 @@
         window.setTimeout(openSocket, 5000);
       }
 
+    }
+
+    function updateArrow(level) {
+      window.requestAnimationFrame(_ => {
+        let pointer = document.querySelector(".pointer");
+        let target = document.querySelector(`[data-level="${level}"]`);
+        let rect = target.getBoundingClientRect();
+        pointer.style.top = `${rect.top}px`;
+        pointer.style.right = `${rect.right + 10}px`;
+        document.querySelector("#theme").setAttribute("content", target.style.background);
+      });
     }
 
   </script>
