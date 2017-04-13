@@ -30,6 +30,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -40,6 +41,8 @@ type fileSum struct {
 }
 
 var sums = map[string]*fileSum{}
+
+var mu = &sync.Mutex{}
 
 func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 	var err error
@@ -92,6 +95,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 	w.Header().Set("Content-Type", mime)
 	w.Header().Set("Cache-Control", "public")
 	w.Header().Set("Last-Modified", mod.Format(time.RFC1123))
+	w.Header().Set("Expires", mod.Add((24*365)*time.Hour).Format(time.RFC1123))
 	w.Header().Set("ETag", sum)
 	if r.Header.Get("If-None-Match") == sum {
 		w.WriteHeader(http.StatusNotModified)
@@ -109,6 +113,8 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 }
 
 func readFile(path string) ([]byte, string, time.Time, error) {
+	mu.Lock()
+	defer mu.Unlock()
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, "", time.Now(), err

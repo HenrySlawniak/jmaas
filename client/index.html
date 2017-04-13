@@ -183,11 +183,11 @@
       }
 
       socket.onopen = function (e) {
-        console.log(e);
+        console.log("WebSocket opened");
       }
 
       socket.onclose = function (e) {
-        console.log(e);
+        console.log("WebSocket closed");
         window.setTimeout(openSocket, 5000);
       }
 
