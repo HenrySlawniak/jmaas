@@ -14,7 +14,7 @@
 <body>
   <div class="content">
     <div class="container">
-      <img src="/static/arrow.png" class="pointer" />
+      <img src="/static/josh.png" class="pointer" />
       <div class="intro">
         <h1>The Josh Mills Anger Advisory System</h1>
       </div>
@@ -199,7 +199,7 @@
         let target = document.querySelector(`[data-level="${level}"]`);
         let rect = target.getBoundingClientRect();
         pointer.style.top = `${rect.top}px`;
-        pointer.style.right = `${rect.right + 10}px`;
+        pointer.style.right = `${(rect.left - 10) - 300}px`;
         document.querySelector("#theme").setAttribute("content", target.style.background);
       });
     }

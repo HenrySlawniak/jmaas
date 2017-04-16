@@ -67,10 +67,10 @@ a:hover {
 
 .pointer {
   position: absolute;
-  top: -180px;
-  height: 180px;
+  top: -500px;
+  height: 300px;
   width: auto;
-  transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1), right 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1), left 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .item-title {}
