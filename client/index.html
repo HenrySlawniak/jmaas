@@ -199,7 +199,7 @@
         let target = document.querySelector(`[data-level="${level}"]`);
         let rect = target.getBoundingClientRect();
         pointer.style.top = `${rect.top}px`;
-        pointer.style.right = `${(rect.left - 10) - 300}px`;
+        pointer.style.right = `${(rect.left - 10) - 500}px`;
         document.querySelector("#theme").setAttribute("content", target.style.background);
       });
     }
