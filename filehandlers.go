@@ -50,6 +50,8 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 		path = "./client/index.html"
 	}
 
+	w.Header().Set("Vary", "Accept-Encoding")
+
 	var (
 		sum     string
 		content []byte
