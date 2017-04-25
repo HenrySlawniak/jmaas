@@ -87,7 +87,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 			if err := pusher.Push("/static/style.css", nil); err != nil {
 				log.Warnf("Failed to push: %v", err)
 			}
-			if err := pusher.Push("/static/arrow.png", nil); err != nil {
+			if err := pusher.Push("/static/josh.png", nil); err != nil {
 				log.Warnf("Failed to push: %v", err)
 			}
 		}
