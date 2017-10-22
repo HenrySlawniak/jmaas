@@ -41,7 +41,7 @@ const version = "1.1.0"
 
 var (
 	devMode = flag.Bool("dev", false, "Puts the server in developer mode, will bind to :34265 and will not autocert")
-	domains = flag.String("domain", "angrymills.net", "A comma-seperaated list of domains to get a certificate for.")
+	domains = flag.String("domain", "angrymills.net,happymills.net", "A comma-seperaated list of domains to get a certificate for.")
 	client  = &http.Client{}
 	level   = 0
 )
