@@ -41,9 +41,11 @@ const version = "1.1.0"
 
 var (
 	devMode = flag.Bool("dev", false, "Puts the server in developer mode, will bind to :34265 and will not autocert")
-	domains = flag.String("domain", "angrymills.net,happymills.net", "A comma-seperaated list of domains to get a certificate for.")
+	domains = flag.String("domain", "angrymills.net,happymills.net,sexymills.com", "A comma-seperaated list of domains to get a certificate for.")
+	listen  = flag.String("listen", ":https", "The address to listen on")
 	client  = &http.Client{}
 	level   = 0
+	m       autocert.Manager
 )
 
 func init() {
@@ -66,9 +68,9 @@ func getNumLevels() int {
 
 func main() {
 	flag.Parse()
-	cLog := console.New()
+	cLog := console.New(true)
 	cLog.SetTimestampFormat(time.RFC3339)
-	log.RegisterHandler(cLog, log.AllLevels...)
+	log.AddHandler(cLog, log.AllLevels...)
 
 	log.Info("Starting The Josh Mills Anger Advisory System")
 
@@ -109,22 +111,47 @@ func main() {
 			domainList[i] = strings.TrimSpace(d)
 		}
 
-		m := autocert.Manager{
+		m = autocert.Manager{
+			Cache:      autocert.DirCache("certs"),
 			Prompt:     autocert.AcceptTOS,
 			HostPolicy: autocert.HostWhitelist(domainList...),
-			Cache:      autocert.DirCache("certs"),
+		}
+
+		tlsConf := &tls.Config{
+			MinVersion:               tls.VersionTLS12,
+			PreferServerCipherSuites: true,
+			GetCertificate:           m.GetCertificate,
+
+			CurvePreferences: []tls.CurveID{
+				tls.CurveP256,
+				tls.X25519,
+			},
+
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+				tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+				tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			},
 		}
 
 		rootSrv := &http.Server{
-			Addr:      ":https",
-			TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
+			Addr:      *listen,
 			Handler:   mux,
-		}
+			TLSConfig: tlsConf,
 
-		log.Info("Listening on :https")
+			ReadTimeout:  5 * time.Second,
+			WriteTimeout: 10 * time.Second,
+			IdleTimeout:  120 * time.Second,
+		}
+		go http.ListenAndServe(":http", m.HTTPHandler(nil))
+
+		log.Infof("Listening on %s", *listen)
 
 		http2.ConfigureServer(rootSrv, &http2.Server{})
-		rootSrv.ListenAndServeTLS("", "")
+		log.Fatal(rootSrv.ListenAndServeTLS("", ""))
 	}
 }
 
