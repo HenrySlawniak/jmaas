@@ -100,53 +100,52 @@ func main() {
 		srv.ListenAndServe()
 	}
 
-		domainList := strings.Split(*domains, ",")
-		for i, d := range domainList {
-			domainList[i] = strings.TrimSpace(d)
-		}
-
-		m = autocert.Manager{
-			Cache:      autocert.DirCache("certs"),
-			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist(domainList...),
-		}
-
-		tlsConf := &tls.Config{
-			MinVersion:               tls.VersionTLS12,
-			PreferServerCipherSuites: true,
-			GetCertificate:           m.GetCertificate,
-
-			CurvePreferences: []tls.CurveID{
-				tls.CurveP256,
-				tls.X25519,
-			},
-
-			CipherSuites: []uint16{
-				tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
-				tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
-				tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-			},
-		}
-
-		rootSrv := &http.Server{
-			Addr:      *listen,
-			Handler:   mux,
-			TLSConfig: tlsConf,
-
-			ReadTimeout:  5 * time.Second,
-			WriteTimeout: 10 * time.Second,
-			IdleTimeout:  120 * time.Second,
-		}
-		go http.ListenAndServe(":http", m.HTTPHandler(nil))
-
-		log.Infof("Listening on %s", *listen)
-
-		http2.ConfigureServer(rootSrv, &http2.Server{})
-		log.Fatal(rootSrv.ListenAndServeTLS("", ""))
+	domainList := strings.Split(*domains, ",")
+	for i, d := range domainList {
+		domainList[i] = strings.TrimSpace(d)
 	}
+
+	m = autocert.Manager{
+		Cache:      autocert.DirCache("certs"),
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist(domainList...),
+	}
+
+	tlsConf := &tls.Config{
+		MinVersion:               tls.VersionTLS12,
+		PreferServerCipherSuites: true,
+		GetCertificate:           m.GetCertificate,
+
+		CurvePreferences: []tls.CurveID{
+			tls.CurveP256,
+			tls.X25519,
+		},
+
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+		},
+	}
+
+	rootSrv := &http.Server{
+		Addr:      *listen,
+		Handler:   mux,
+		TLSConfig: tlsConf,
+
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+	go http.ListenAndServe(":http", m.HTTPHandler(nil))
+
+	log.Infof("Listening on %s", *listen)
+
+	http2.ConfigureServer(rootSrv, &http2.Server{})
+	log.Fatal(rootSrv.ListenAndServeTLS("", ""))
 }
 
 func httpRedirectHandler(w http.ResponseWriter, r *http.Request) {
