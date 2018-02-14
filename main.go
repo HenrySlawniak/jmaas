@@ -98,13 +98,7 @@ func main() {
 
 		log.Info("Listening on :34265")
 		srv.ListenAndServe()
-	} else {
-		httpSrv := &http.Server{
-			Addr:    ":http",
-			Handler: http.HandlerFunc(httpRedirectHandler),
-		}
-
-		go httpSrv.ListenAndServe()
+	}
 
 		domainList := strings.Split(*domains, ",")
 		for i, d := range domainList {
