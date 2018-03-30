@@ -13,3 +13,5 @@ publish:
   image: plugins/docker
   repo: henryslawniak/jmaas
   tags: latest
+  when:
+    status: success
