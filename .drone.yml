@@ -1,0 +1,10 @@
+workspace:
+  base: /go
+  path: src/github.com/HenrySlawniak/jmaas
+
+pipeline:
+  backend:
+    image: golang:alpine
+    commands:
+      - apk add --update git bash
+      - bash -c "go build -ldflags '-w -X main.buildTime=$(date +'%b-%d-%Y-%H:%M:%S') -X main.commit=$(git describe --always --dirty=*)' -o jmaas ."
